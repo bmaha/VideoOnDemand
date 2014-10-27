@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd 
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.directwebremoting.org/schema/spring-dwr 
+        http://www.directwebremoting.org/schema/spring-dwr-3.0.xsd">
+
+	<bean name="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+ 
+		<property name="driverClassName" value="org.apache.derby.jdbc.ClientDriver" />
+		<property name="url" value="jdbc:derby://localhost:1527/voddb" />
+		<property name="username" value="vodapp" />
+		<property name="password" value="vodapp" />
+	</bean>
+ 
+	<bean name="movieDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.MovieDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean name="userDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.UserDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean name="transactionDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.TransactionDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean name="userOperationDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.UserOperationDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean name="movieManagementSvc"
+		class="edu.utdallas.videoOnDemand.movieManagementSvc.MovieManagementServiceImpl">
+		<property name="movieDAO" ref="movieDAO"/>
+	</bean>
+
+	<bean name="userManagementSvc"
+		class="edu.utdallas.videoOnDemand.userManagementSvc.UserManagementServiceImpl">
+		<property name="userDAO" ref="userDAO"/>
+	</bean>	
+	
+	<bean name="transactionManagementSvc"
+		class="edu.utdallas.videoOnDemand.transactionSvc.TransactionServiceImpl">
+		<property name="transactionDAO" ref="transactionDAO"/>
+	</bean>
+	
+	<bean name="userOperationMngtSvc"
+		class="edu.utdallas.videoOnDemand.UserOperationMngtSvc.UserOperationMngtServiceImpl">
+		<property name="userOperationDAO" ref="userOperationDAO"/>
+	</bean>
+</beans>

@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Video On Demand Administration Console</title>
+
+<!--  JQuery Styles -->
+<link href="css/ui-lightness/jquery-ui-1.10.4.custom.css" rel="stylesheet" type="text/css" media="screen" />
+
+<!-- Application Styles -->
+	
+<!--  JQuery -->
+<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript' src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/MovieManagementService.js"></script>
+
+<!-- Application Javascript -->
+
+<script type="text/javascript">
+
+// OnLoad Actions
+$(function() {
+});
+
+function submitMovie() {
+	var movieInfo = {
+		title: $("#title").val(),
+		imdbId: $("#imdbID").val(),
+		videoURL: $("#mpegName").val()
+	};
+	MovieManagementService.addMovie(movieInfo);
+}
+
+function removeMovie() {
+	var MOVIE_ID = $("#removeMovieID").val();
+	MovieManagementService.removeMovie(movieID);
+}
+
+function errHandler(errorText, ex) {
+	if(errorText == null || errorText == '') {
+		errorText = ex.javaClassName;
+	}
+	alert(errorText);
+}
+
+</script>
+
+</head>
+<body style="font-family: arial; background: white">
+	<div>Add Movie</div>
+	<div>
+	<table>
+	<tr><td>Title</td><td><input type="text" id="title" name="title"></td></tr>
+	<tr><td>IMDB ID</td><td><input type="text" id="imdbID" name="imdbID"></td></tr>
+	<tr><td>MPEG Filename</td><td><input type="text" id="mpegName" name="mpegName"></td></tr>
+	<tr><td colspan="2"><button onclick="submitMovie()" type="button">Add Movie</button></td></tr>
+	</table>
+	</div>
+	<div>Remove Movie</div>
+	<div>
+	<table>
+	<tr><td>Movie ID</td><td><input type="text" id="removeMovieID" name="removeMovieID"></td></tr>
+	<tr><td colspan="2"><button onclick="removeMovie()" type="button">Remove Movie</button></td></tr>
+	</table>
+	</div>
+</body>
+</html>
+

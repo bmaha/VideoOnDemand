@@ -1,0 +1,49 @@
+<?xml version="1.0" ?> 
+<project name="AntExample1" default="deploy">
+
+	<property name="buildDir" location="c:/tmp" />
+	
+	<path id="compile.classpath">
+		<fileset dir="WebContent/WEB-INF/lib">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="libs">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<target name="init">
+		<mkdir dir="${buildDir}/warBuild/classes"/>
+		<mkdir dir="${buildDir}/dist" />
+	</target>
+	
+	<target name="compile" depends="init" >
+		<javac destdir="${buildDir}/warBuild/classes" debug="true" srcdir="src">
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="war" depends="compile">
+		<!-- Copy .property files from src tree -->
+		<copy todir="${buildDir}/warBuild/classes">
+		    <fileset dir="src"
+		             includes="**/*.xml,**/*.properties,**/*.txt,**/*.ico" />
+		</copy>		
+		
+		<war destfile="${buildDir}/dist/vodapp.war" webxml="WebContent/WEB-INF/web.xml">
+			<fileset dir="WebContent"/>
+			<lib dir="WebContent/WEB-INF/lib"/>
+			<classes dir="${buildDir}/warBuild/classes"/>
+		</war>
+	</target>
+	
+	<target name="deploy" depends="war">
+		<copy file="${buildDir}/dist/vodapp.war" todir="C:/tomcat/webapps" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="${buildDir}/dist" />
+		<delete dir="${buildDir}/warBuild" />
+	</target>
+	
+</project>

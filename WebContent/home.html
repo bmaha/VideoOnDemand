@@ -1,0 +1,222 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Video on Demand - Home</title>
+<link href="css/VOD.css" rel="stylesheet" type="text/css">
+<link href="css/menu.css" rel="stylesheet" type="text/css">
+<link href="css/popModal.css" rel="stylesheet" type="text/css">
+<script src="js/jquery.min.js"></script>
+<script src="js/popModal.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript' src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/MovieManagementService.js"></script>
+
+<!-- Application Javascript -->
+<script type="text/javascript">
+        
+ 	// OnLoad Actions
+    $(function() {    	
+    	UserManagementService.authenticate(authenticateCallback);
+    	UserManagementService.retrieveUserInfo(displayUser);
+    	MovieManagementService.retrieveAllMovies(listMovies);
+    });
+ 	
+ 	function displayUser(user)
+ 	{
+ 		if(user){
+ 			$("#username").html(user.username);
+ 		}
+ 	}
+ 	
+    function logoutUser() {
+    	UserManagementService.logout(logoutCallback);    	
+    }
+    
+    function authenticateCallback(success)
+    {
+    	if(success == false)
+   		{
+    		window.location.href = "index.html";
+   		}	
+    }
+    
+    function logoutCallback(success)
+    {
+    	if(success == true)
+   		{
+    		window.location.href = "index.html";
+   		}
+    	else
+   		{
+    		$('#notify').html("Unable to logout user!!!");
+    		$('#notify').notifyModal({
+        		duration : 5500,
+        		placement : 'center',
+        		overlay : true
+        		}); 
+   		}
+    		
+    }
+    
+    function listMovies(movieArray) {
+    	var len = movieArray.length;
+    	for(var idx = 0; idx < len; idx++) {
+    		var movie = movieArray[idx];
+    		var img = jQuery('<img>', {
+				    		    src: movie.posterURL,
+				    		    title: movie.title,
+				    		    height: '173',
+				    		    width: '130'
+    				  });
+    		
+    		var a = jQuery('<a/>', {
+			    		    href: 'watch.html?id='+movie.movieId
+	  				});
+    		
+    		var hintEle = $('<div id="hint_'+movie.imdbId+'" class="hintModal_container"><div class="movie_director"></div><div class="movie_actors"></div><div class="movie_rated"></div><div class="movie_awards"></div><div class="movie_released"></div></div>');
+    		
+    		var h3 = jQuery('<h3/>', {
+			    		    class: 'title_grid',
+			    		    title: movie.title,
+			    		    text: movie.title
+	  					});
+    		
+    		var divInner = jQuery('<div/>', {
+				    		    class: 'cont_display'
+				    		});
+    		
+    		var divOuter = jQuery('<div/>', {
+				    		    class: 'boxed film'
+				    		});
+    		
+    		var li = jQuery('<li/>', {
+				    		    class: 'hintModal hintModal_right'
+				    		});
+    		
+    		var innerEle = img.appendTo(a);
+    		var innerEle1 = divInner.append(innerEle.parent());
+    		var innerEle2 = innerEle1.add(h3);
+    		
+    		
+    		
+    		var finalEle = divOuter.append(innerEle2[0]).append(innerEle2[1]).append(hintEle);
+    		var finalEle1 = finalEle.appendTo(li);
+    		finalEle.parent().appendTo('#listMovies'); 
+    		
+    		MovieManagementService.retrieveMovieInfo(movie.movieId,displayMovieInfoHint);
+    	}
+    	
+    	$('.hintModal').hintModal();
+    }
+    
+    function displayMovieInfoHint(movieData) {
+		$("#hint_"+movieData.imdbID+" > .movie_director").html('<span style="color:#000;">Directed by: </span>'+movieData.director);
+		$("#hint_"+movieData.imdbID+" > .movie_actors").html('<span style="color:#000;">Actors: </span>'+movieData.actors);
+
+		$("#hint_"+movieData.imdbID+" > .movie_rated").html('<span style="color:#000;">Rated: </span>' + movieData.rated);
+		$("#hint_"+movieData.imdbID+" > .movie_awards").html('<span style="color:#000;">Awards: </span>' + movieData.awards);
+		$("#hint_"+movieData.imdbID+" > .movie_released").html('<span style="color:#000;">Released: </span>' + movieData.released);
+		
+    }
+    
+    
+ 	
+    function errHandler(errorText, ex) {
+    	if(errorText == null || errorText == '') {
+    		errorText = ex.javaClassName;
+    	}
+    	$('#notify').html(errorText);	
+
+    	$('#notify').dialogModal({  
+	    	onOkBut : function(){ },   	
+	    	onCancelBut : function(){ }, 
+	    	onLoad : function(){ },  	
+	    	onClose : function(){ },  
+    	});	
+    }
+    
+    function searchMovies(){
+    	var search_string = $("#input_search").val()
+    	var type = $("#type_search option:selected").text();
+    	var url_string = "search.html?search=" + search_string + "&type=" + type;
+    	window.location.href = url_string;
+    }
+       
+    
+</script>
+</head>
+
+<body>
+<div id="headerBar">
+<header class="bars">
+<div class="container">
+
+<a title="Videos On Demand" href="index.html">
+<div id="fsLogo"></div>
+</a>
+<form id="formSearch" method="POST" action="search.html">
+	<div style="float:right;display:block;margin-top:5px;font-size:11px;color:#fff;">Logged in as: <a id="username" style="cursor:pointer;" href="profile.html"></a></div>
+	<div id="search">
+	<input id="input_search" class="input_search" type="text" placeholder="Search..." value="" name="q">
+	
+	<select id="type_search" class="choice" name="s">
+		<option value="t">Title</option>
+		<option value="a">Actor</option>
+		<option value="d">Director</option>
+	</select>
+	<button type="button" onClick="searchMovies();">Search</button>
+	</div>
+</form>
+
+
+
+</div>
+</header>
+</div>
+<div id='topHeadermenu'>
+<ul>
+   <li class='has-sub'><a href='home.html'><span>HOME</span></a></li>
+   <li><a href='profile.html'><span>PROFILE</span></a></li>
+   <li><a href='favorites.html'><span>FAVORITES</span></a></li>
+   <li><a href='history.html'><span>HISTORY</span></a></li>
+   <li><a href='recommendations.html'><span>RECOMMENDATIONS</span></a></li>
+   <li><a onclick="logoutUser()"><span>LOG OUT</span></a></li>
+</ul>
+
+</div>
+
+<div class="mainContainer" style="height:auto;padding-bottom:20px;">
+
+	<div class="caption">
+	<div>
+	Movie
+	<span>Catalog</span>
+	</div>
+	</div>
+
+	<div class="content">
+		<ul id="listMovies">	
+		</ul>
+	</div>
+</div>
+
+<div class="footer">
+<ul id="footerLinksList">
+<li>
+© 2014 &nbsp;Videos On Demand. All Rights Reserved
+</li>
+<li>|</li>
+<li>
+<a href="contactus.html">Contact Us</a>
+</li>
+</ul>
+
+</div>
+
+
+</body>
+</html>
+

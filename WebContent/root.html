@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Video On Demand Application</title>
+
+<!--  JQuery Styles -->
+<link href="css/ui-lightness/jquery-ui-1.10.4.custom.css" rel="stylesheet" type="text/css" media="screen" />
+
+<!-- Application Styles -->
+
+<!--  JQuery -->
+<script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript' src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/MovieManagementService.js"></script>
+
+<!-- Application Javascript -->
+
+<script type="text/javascript">
+
+// OnLoad Actions
+$(function() {
+	MovieManagementService.retrieveAllMovies(listMovies);
+});
+
+function listMovies(movieArray) {
+	var len = movieArray.length;
+	for(var idx = 0; idx < len; idx++) {
+		var movie = movieArray[idx];
+		jQuery('<div/>', {
+		    id: 'movie'+idx,
+		    text: movie.title,
+		    class: 'movieDiv',
+		    onclick: 'selectMovie( '+movie.movieId+' )'
+		}).appendTo('#listContent');
+	}
+}
+
+function selectMovie(movieID) {
+	MovieManagementService.retrieveMovieInfo(movieID, presentMovieDetails);
+}
+
+function presentMovieDetails(movieInfoDTO)
+{
+	$('#posterImg').attr('src',  movieInfoDTO.poster);
+	
+	$('#title').text(movieInfoDTO.title);
+	$('#plot').text(movieInfoDTO.plot);
+	$('#actors').text(movieInfoDTO.actors);
+	$('#rated').text(movieInfoDTO.rated);
+	$('#year').text(movieInfoDTO.year);
+	$('#released').text(movieInfoDTO.released);
+	$('#running').text(movieInfoDTO.runtime);
+	$('#director').text(movieInfoDTO.director);
+	$('#writers').text(movieInfoDTO.writer); 
+}
+
+function errHandler(errorText, ex) {
+	if(errorText == null || errorText == '') {
+		errorText = ex.javaClassName;
+	}
+	alert(errorText);
+}
+
+</script>
+
+</head>
+<body style="font-family: arial; background: white">
+	<div class="content" style="position:relative">
+		<div id="listContent" style="position:absolute;left:0px;width:200px"></div>
+		<div id="posterDiv" style="margin-left:200px"><img id='posterImg' src="" /></div>
+		<div id='detailsDiv' style="margin-left:200px">
+			<table>
+			<tr><td>Title: </td><td id="title"></td></tr>
+			<tr><td>Plot: </td><td id="plot"></td></tr>
+			<tr><td>Actors: </td><td id="actors"></td></tr>
+			<tr><td>Rated: </td><td id="rated"></td></tr>
+			<tr><td>Year: </td><td id="year"></td></tr>
+			<tr><td>Released: </td><td id="released"></td></tr>
+			<tr><td>Running Time: </td><td id="running"></td></tr>
+			<tr><td>Director: </td><td id="director"></td></tr>
+			<tr><td>Writers: </td><td id="writers"></td></tr>
+			</table>
+		</div>
+	</div>
+</body>
+</html>
+

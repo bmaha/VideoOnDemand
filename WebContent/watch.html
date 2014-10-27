@@ -1,0 +1,487 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Video on Demand - Watch</title>
+<link href="css/VOD.css" rel="stylesheet" type="text/css">
+<link href="css/menu.css" rel="stylesheet" type="text/css">
+<link href="css/popModal.css" rel="stylesheet" type="text/css">
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.dateformat.min.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript'
+	src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript'
+	src="dwr/interface/MovieManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/TransactionService.js"></script>
+<script type='text/javascript'
+	src="dwr/interface/MovieCommentService.js"></script>
+
+<!-- Application Javascript -->
+<script type="text/javascript">
+	// OnLoad Actions
+	$(function() {
+
+		$('#notify').html("Loading...");
+		$('#notify').notifyModal({
+			duration : 55000,
+			placement : 'center',
+			overlay : true
+		});
+
+		UserManagementService.authenticate(authenticateCallback);
+		UserManagementService.retrieveUserInfo(displayUser);
+		MovieManagementService.retrieveMovieInfo(getParameterByName('id'),
+				displayMovieInfo);
+		MovieCommentService.retrieveMovieComments(getParameterByName('id'),
+				displayComments);
+		MovieManagementService.checkMovieAsFavorite(getParameterByName('id'),
+				isFavorite);
+		TransactionService.getMovieDaysLeft(getParameterByName('id'),
+				getMovieDaysLeftCallback);
+	});
+
+	function displayUser(user) {
+		if (user) {
+			$("#username").html(user.username);
+		}
+	}
+
+	function displayMovieInfo(movieData) {
+		$("#movie_title").html(movieData.title);
+		$("#movie_poster").attr('src', movieData.poster);
+		$("#movie_poster").attr('title', movieData.title);
+		$("#movie_poster").attr('alt', movieData.title);
+
+		$("#movie_director").html(movieData.director);
+		$("#movie_actors").html(movieData.actors);
+		$("#movie_writer").html(movieData.writer);
+		$("#movie_plot").html(movieData.plot);
+
+		$("#movie_rated").html('Rated: ' + movieData.rated);
+		$("#movie_awards").html('Awards: ' + movieData.awards);
+		$("#movie_runtime").html('Runtime: ' + movieData.runtime);
+		$("#movie_released").html('Released: ' + movieData.released);
+
+		$('#notify').html("&nbsp;");
+		$('#notify').notifyModal({
+			duration : 0,
+			placement : 'center',
+			overlay : true
+		});
+
+		MovieManagementService.retrieveMovie(getParameterByName('id'),
+				displayMovie);
+
+	}
+
+	function displayMovie(movieData) {
+		$("#movie_category").html('Category: ' + movieData.category);
+		var src = "videos/" + movieData.videoURL;
+
+		$(".video").html(
+				'<video width="840" height="500" controls>'
+						+ '<source src="'+src+'" type="video/mp4"></source>'
+						+ 'Your browser does not support the video tag.'
+						+ '</video>');
+
+	}
+
+	function addTransaction(type) {
+		
+		if (type == 'R') {
+			var transactionInfo = {
+					movieID: getParameterByName('id'),
+					transType: 'R',
+					amount: 30.00
+				};
+			TransactionService.rentMovie(transactionInfo,
+					addRTransactionCallback);
+		} else {
+			var transactionInfo = {
+					movieID: getParameterByName('id'),
+					transType: 'P',
+					amount: 30.00
+				};
+			TransactionService.purchaseMovie(transactionInfo,
+					addPTransactionCallback);
+		}
+
+	}
+
+	function addRTransactionCallback(type) {
+		var message = 'Thanks for renting, Enjoy watching...';
+		$('#notify').html(message);
+		$('#notify').notifyModal({
+			duration : 5000,
+			placement : 'center',
+			overlay : true
+		});
+
+		TransactionService.getMovieDaysLeft(getParameterByName('id'),
+				getMovieDaysLeftCallback);
+	}
+
+	function addPTransactionCallback(type) {
+		var message = 'Thanks for buying, Enjoy watching...';
+		$('#notify').html(message);
+		$('#notify').notifyModal({
+			duration : 5000,
+			placement : 'center',
+			overlay : true
+		});
+
+		TransactionService.getMovieDaysLeft(getParameterByName('id'),
+				getMovieDaysLeftCallback);
+	}
+
+	function logoutUser() {
+		UserManagementService.logout(logoutCallback);
+	}
+
+	function authenticateCallback(success) {
+		if (success == false) {
+			window.location.href = "index.html";
+		}
+	}
+
+	function logoutCallback(success) {
+		if (success == true) {
+			window.location.href = "index.html";
+		} else {
+			$('#notify').html("Unable to logout user!!!");
+			$('#notify').notifyModal({
+				duration : 5500,
+				placement : 'center',
+				overlay : true
+			});
+		}
+
+	}
+
+	function getMovieDaysLeftCallback(days) {
+		if (days != -1) {
+			if (days == 365) {
+				$("#button_purchase").remove();
+				$("#button_rent").remove();
+				$("#daysLeft").remove();
+			} else {
+				days = 30 - days;
+				$("#button_rent").remove();
+				$("#daysLeft").html("Days left to watch: " + days);
+			}
+		}
+
+	}
+
+	function postComment() {
+
+		if ($.trim($("#comment_text").val())) {
+			var text = $.trim($("#comment_text").val());
+			MovieCommentService.addMovieComment(getParameterByName('id'), text,
+					postCommentCallback);
+		}
+
+		$('#comment_text').val('');
+
+	}
+
+	function postCommentCallback(success) {
+		if (success == true) {
+			MovieCommentService.retrieveMovieComments(getParameterByName('id'),
+					displayComments);
+		} else {
+			$('#notify').html(
+					"Error: Unable to add coments,please contact admin.");
+			$('#notify').notifyModal({
+				duration : 0,
+				placement : 'center',
+				overlay : true
+			});
+		}
+
+	}
+
+	function displayComments(commentData) {
+		var len = commentData.length;
+		$("#comment_content").html('&nbsp;');
+		for (var idx = 0; idx < len; idx++) {
+			var comment = commentData[idx];
+			var date = $.format.date(comment.createdOn + " 10:54:50.546",
+					"on: MMMM dd, yyyy");
+			var commentHTML = $('<div class="comment_img lightboxed">'
+					+ '<div class="cont_display cont_display_comment">'
+					+ '<div class="boxed"	style="width: 50px; height: 50px; color: #5980A9">'
+					+ '<img width="50" height="50" src="images/user.jpg">'
+					+ '</div></div>'
+					+ '<div class="infos">'
+					+ '<div class="lightboxed" style="padding: 0px 0px 0px 20px;">'
+					+ '<div class="infos_sub lightboxed" style="padding: 0px;">'
+					+ '<span class="colorBlue">'
+					+ comment.username
+					+ '</span><span	style="font-size: 11px; margin-left: 10px;">'
+					+ date + '</span>' + '</div>'
+					+ '<div class="content summary_comment lightboxed">'
+					+ comment.commentText + '</div></div>' + '</div>'
+					+ '</div>');
+			$("#comment_content").append(commentHTML);
+		}
+
+	}
+
+	function addToFavorite() {
+		if (getParameterByName('id')) {
+			MovieManagementService.addMovieToUserFavorite(
+					getParameterByName('id'), addToFavoriteCallback);
+		}
+	}
+
+	function addToFavoriteCallback(success) {
+		if (success == true) {
+			$('#notify').html("Movie added to your favorites");
+			$('#notify').notifyModal({
+				duration : 5500,
+				placement : 'center',
+				overlay : true
+			});
+
+			$("#button_favorite").html('Remove from Favorites');
+			$("#button_favorite").css('width', '200px');
+			$("#button_favorite").attr('onclick', 'removeFromFavorite()');
+
+		} else {
+			$('#notify').html(
+					"Error: Unable to add to favorite,please contact admin.");
+			$('#notify').notifyModal({
+				duration : 5500,
+				placement : 'center',
+				overlay : true
+			});
+		}
+
+	}
+
+	function isFavorite(data) {
+		if (data == true) {
+			$("#button_favorite").html('Remove from Favorites');
+			$("#button_favorite").css('width', '200px');
+			$("#button_favorite").attr('onclick', 'removeFromFavorite()');
+		}
+	}
+
+	function removeFromFavorite() {
+		if (getParameterByName('id')) {
+			MovieManagementService.removeMovieFromUserFavorite(
+					getParameterByName('id'), removeFromFavoriteCallback);
+		}
+	}
+
+	function removeFromFavoriteCallback(success) {
+		if (success == true) {
+			$('#notify').html("Movie removed from your favorites");
+			$('#notify').notifyModal({
+				duration : 5500,
+				placement : 'center',
+				overlay : true
+			});
+
+			$("#button_favorite").html('Add to Favorites');
+			$("#button_favorite").css('width', '150px');
+			$("#button_favorite").attr('onclick', 'addToFavorite()');
+
+		} else {
+			$('#notify')
+					.html(
+							"Error: Unable to remove from favorite,please contact admin.");
+			$('#notify').notifyModal({
+				duration : 5500,
+				placement : 'center',
+				overlay : true
+			});
+		}
+
+	}
+
+	function getParameterByName(name) {
+		return decodeURIComponent((new RegExp('[?|&]' + name + '='
+				+ '([^&;]+?)(&|#|;|$)').exec(location.search) || [ , "" ])[1]
+				.replace(/\+/g, '%20'))
+				|| null;
+	}
+
+	function errHandler(errorText, ex) {
+		if (errorText == null || errorText == '') {
+			errorText = ex.javaClassName;
+		}
+		$('#notify').html(errorText);
+
+		$('#notify').dialogModal({
+			onOkBut : function() {
+			},
+			onCancelBut : function() {
+			},
+			onLoad : function() {
+			},
+			onClose : function() {
+			},
+		});
+	}
+	
+	function searchMovies(){
+    	var search_string = $("#input_search").val()
+    	var type = $("#type_search option:selected").text();
+    	var url_string = "search.html?search=" + search_string + "&type=" + type;
+    	window.location.href = url_string;
+    }
+</script>
+</head>
+
+<body>
+	<div id="headerBar">
+		<header class="bars">
+			<div class="container">
+
+				<a title="Videos On Demand" href="index.html">
+					<div id="fsLogo"></div>
+				</a>
+				<form id="formSearch" method="POST" action="search.html">
+					<div style="float:right;display:block;margin-top:5px;font-size:11px;color:#fff;">Logged in as: <a id="username" style="cursor:pointer;" href="profile.html"></a></div>
+					<div id="search">
+					<input id="input_search" class="input_search" type="text" placeholder="Search..." value="" name="q">
+					
+					<select id="type_search" class="choice" name="s">
+						<option value="t">Title</option>
+						<option value="a">Actor</option>
+						<option value="d">Director</option>
+					</select>
+					<button type="button" onClick="searchMovies();">Search</button>
+					</div>
+				</form>
+
+
+
+			</div>
+		</header>
+	</div>
+	<div id='topHeadermenu'>
+		<ul>
+			<li class='has-sub'><a href='home.html'><span>HOME</span></a></li>
+			<li><a href='profile.html'><span>PROFILE</span></a></li>
+			<li><a href='favorites.html'><span>FAVORITES</span></a></li>
+			<li><a href='history.html'><span>HISTORY</span></a></li>
+			<li><a href='recommendations.html'><span>RECOMMENDATIONS</span></a></li>
+			<li><a onclick="logoutUser()"><span>LOG OUT</span></a></li>
+		</ul>
+
+	</div>
+
+	<div class="mainContainer" style="height: auto; padding-bottom: 20px;">
+		<div id="notify" style="display: none"></div>
+		<div class="caption">
+			<div>
+				Watch <span>Movie</span>
+			</div>
+		</div>
+
+		<div class="content">
+
+
+
+			<div class="film_list_header lightboxed">
+				<h2 class="title_font">
+					<span class="thumb"> <img class="movie_watch_img" width="30"
+						height="25" src="images/play.png">
+					</span> <span id="movie_title"></span>
+
+					<div class="user">
+						<span id="daysLeft" class="colorBlue inline"
+							style="font-size: 14px;"></span>
+						<button id="button_favorite" onclick="addToFavorite()"
+							type="button" style="width: 150px;">Add to Favorites</button>
+						<button id="button_purchase" onclick="addTransaction('P')"
+							data-titlemodal="init" title="Buy Amount: $100"
+							data-placement="top" type="button">Buy</button>
+						<button id="button_rent" onclick="addTransaction('R')"
+							data-titlemodal="init" title="Rent Amount: $30"
+							data-placement="top" type="button">Rent</button>
+
+					</div>
+				</h2>
+
+
+			</div>
+
+
+			<div class="film_img lightboxed">
+				<div class="cont_display cont_display_film">
+
+					<div class="boxed"
+						style="width: 120px; height: 160px; color: #5980A9">
+						<img id="movie_poster" width="120" height="160" src="" alt=""
+							title="">
+					</div>
+				</div>
+				<div class="infos">
+					<div class="lightboxed">
+						<div class="infos_sub lightboxed">
+							Directed by: <span id="movie_director" class="colorBlue"></span>
+							<br> Actors: <span id="movie_actors" class="colorBlue"></span>
+							<br> Written by: <span id="movie_writer" class="colorBlue"></span>
+						</div>
+
+						<div id="movie_plot" class="summary summary_film lightboxed"></div>
+						<div id="movie_category" class="lightboxed colorBlue inline"></div>
+						|
+						<div id="movie_rated" class="lightboxed colorBlue inline"></div>
+						|
+						<div id="movie_awards" class="lightboxed colorBlue inline"></div>
+						|
+						<div id="movie_runtime" class="lightboxed colorBlue inline"></div>
+						|
+						<div id="movie_released" class="lightboxed colorBlue inline"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="video lightboxed"></div>
+
+			<div class="comments lightboxed">
+				<div class="caption"
+					style="position: relative; margin-bottom: 70px;">
+					<div>
+						Leave a <span>Comment</span>
+					</div>
+				</div>
+
+				<div id="post_comment">
+					<textarea id="comment_text" maxlength="200" rows="4" cols="50"
+						name="comment" placeholder="Enter your comment here..."></textarea>
+					<button onclick="postComment()" type="button">Post Comment</button>
+				</div>
+
+				<div id="comment_content"></div>
+
+			</div>
+
+
+		</div>
+
+	</div>
+
+	<div class="footer">
+		<ul id="footerLinksList">
+			<li>© 2014 &nbsp;Videos On Demand. All Rights Reserved</li>
+			<li>|</li>
+			<li><a href="contactus.html">Contact Us</a></li>
+		</ul>
+
+	</div>
+
+	<script src="js/popModal.js"></script>
+
+</body>
+</html>

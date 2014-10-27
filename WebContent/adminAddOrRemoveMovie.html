@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Video on Demand</title>
+<link href="css/VOD.css" rel="stylesheet" type="text/css">
+<link href="css/menu.css" rel="stylesheet" type="text/css">
+<link href="css/ccvalidate.css" rel="stylesheet" type="text/css">
+<link href="css/popModal.css" rel="stylesheet" type="text/css">
+<script src="js/jquery-1.4.4.min.js" type="text/javascript"></script>
+<script src="js/ccvalidate.js"></script>
+<script src="js/popModal.js"></script>
+
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript'
+	src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript'
+	src="dwr/interface/MovieManagementService.js"></script>
+</head>
+<script type="text/javascript">
+	// OnLoad Actions
+	$(function() {
+	});
+
+	function submitMovie() {
+		var movieInfo = {
+			title : $("#movieTitle").val(),
+			imdbId : $("#imdbID").val(),
+			videoURL : $("#mpegFileName").val()
+		};
+		MovieManagementService.addMovie(movieInfo);
+	}
+
+	function removeMovie() {
+		var movieInfo = {
+				movieId : $("#removeMovieID").val()
+			};
+		MovieManagementService.removeMovie(movieInfo);
+	}
+	function showMovie() {
+		var movieInfo = {
+				movieId : $("#removeMovieID").val()
+			};
+		MovieManagementService.showMovie(movieInfo);
+	}
+	function hideMovie() {
+		var movieInfo = {
+				movieId : $("#removeMovieID").val()
+			};
+		MovieManagementService.hideMovie(movieInfo);
+	}
+
+	function errHandler(errorText, ex) {
+		if (errorText == null || errorText == '') {
+			errorText = ex.javaClassName;
+		}
+		alert(errorText);
+	}
+</script>
+
+<body>
+	<div id="headerBar">
+		<header class="bars">
+			<div class="container">
+				<a title="Videos On Demand" href="index.html">
+					<div id="fsLogo"></div>
+				</a>
+
+			</div>
+		</header>
+	</div>
+
+	<div class="mainContainer" style="height: 700px;">
+		<div id="notify" style="display: none">Notification</div>
+		<div class="containerHeader">
+			<div>
+				Add / Remove Movies <span></span>
+			</div>
+		</div>
+		<br>
+
+		<div class="signup">
+			<input type="text" id="movieTitle" name="movieTitle"
+				placeholder="Movie Title"> <br> <input type="text"
+				id="imdbID" name="imdbID" placeholder="IMDB ID"> <br> <input
+				type="text" id="mpegFileName" name="mpegFileName"
+				placeholder="MPEG File Name"> <br> <br> <br>
+			<tr>
+				<td colspan="2"><br> <br>
+					<button onclick="submitMovie()" type="button">Add Movie</button></td>
+			</tr>
+			<br> <br> <br> <input type="text" id="removeMovieID"
+				name="removeMovieID" placeholder="Movie ID"> <br>
+			<tr>
+				<td colspan="1"><br> <br>
+					<button onclick="removeMovie()" type="button">Remove Movie</button></td>
+					<td colspan="1">
+					<button onclick="showMovie()" type="button">Show Movie</button></td>
+					<td colspan="1">
+					<button onclick="hideMovie()" type="button">Hide Movie</button></td>
+			</tr>
+		</div>
+	</div>
+	<div class="footer">
+		<ul id="footerLinksList">
+			<li>© 2014 &nbsp;Videos On Demand. All Rights Reserved</li>
+			<li>|</li>
+			<li><a href="contactus.html">Contact Us</a></li>
+		</ul>
+	</div>
+
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Video on Demand - Search</title>
+<link href="css/VOD.css" rel="stylesheet" type="text/css">
+<link href="css/menu.css" rel="stylesheet" type="text/css">
+<script src="js/jquery.min.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript' src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/MovieManagementService.js"></script>
+
+<!-- Application Javascript -->
+<script type="text/javascript">
+	
+	
+$(function() {
+	
+	UserManagementService.authenticate(authenticateCallback);
+	UserManagementService.retrieveUserInfo(displayUser);
+	
+	var QueryString = function () {
+		  // This function is anonymous, is executed immediately and 
+		  // the return value is assigned to QueryString!
+		  var query_string = {};
+		  var query = window.location.search.substring(1);
+		  var vars = query.split("&");
+		  for (var i=0;i<vars.length;i++) {
+		    var pair = vars[i].split("=");
+		    	// If first entry with this name
+		    if (typeof query_string[pair[0]] === "undefined") {
+		      query_string[pair[0]] = pair[1];
+		    	// If second entry with this name
+		    } else if (typeof query_string[pair[0]] === "string") {
+		      var arr = [query_string[pair[0]], pair[1] ];
+		      query_string[pair[0]] = arr;
+		    	// If third or later entry with this name
+		    } else {
+		      query_string[pair[0]].push(pair[1]);
+		    }
+		  } 
+		    return query_string;
+		} ();
+		
+	MovieManagementService.searchMovies(QueryString['search'], QueryString['type'], displaySearchResults);
+	
+	
+
+});
+
+function displayUser(user)
+	{
+		if(user){
+			$("#username").html(user.username);
+		}
+	}
+
+function logoutUser() {
+	UserManagementService.logout(logoutCallback);
+}
+
+function authenticateCallback(success) {
+	if (success == false) {
+		window.location.href = "index.html";
+	}
+}
+
+function logoutCallback(success) {
+	if (success == true) {
+		window.location.href = "index.html";
+	} else {
+		$('#notify').html("Unable to logout user!!!");
+		$('#notify').notifyModal({
+			duration : 5500,
+			placement : 'center',
+			overlay : true
+		});
+	}
+
+}
+
+
+function displaySearchResults(movieArray){
+	
+		var len = movieArray.length;
+		if(len==0){
+			$('#listMoviesSearch').html('<li style="background:none;box-shadow:none;"><div class="caption" style="width:600px;"><div style="font-size:18px;">Your search results <span>0 movies.</span> Try different search.</div></div></li>');
+		}
+		for (var idx = 0; idx < len; idx++) {
+			var movie = movieArray[idx];
+			var img = jQuery('<img>', {
+				src : movie.posterURL,
+				title : movie.title,
+				height : '173',
+				width : '130'
+			});
+
+			var a = jQuery('<a/>', {
+				href : 'watch.html?id=' + movie.movieId
+			});
+
+			
+			var h3 = jQuery('<h3/>', {
+				class : 'title_grid',
+				title : movie.title,
+				text : movie.title
+			});
+
+			var divInner = jQuery('<div/>', {
+				class : 'cont_display'
+			});
+
+			var divOuter = jQuery('<div/>', {
+				class : 'boxed film'
+			});
+
+			var li = jQuery('<li/>');
+
+			var innerEle = img.appendTo(a);
+			var innerEle1 = divInner.append(innerEle.parent());
+			var innerEle2 = innerEle1.add(h3);
+
+			var finalEle = divOuter.append(innerEle2[0]).append(innerEle2[1]);
+			var finalEle1 = finalEle.appendTo(li);
+			var finalEle2 = finalEle.parent();
+			finalEle2.appendTo('#listMoviesSearch');
+
+		}
+
+	
+}
+
+
+function searchMovies(){
+	var search_string = $("#input_search").val()
+	var type = $("#type_search option:selected").text();
+	var url_string = "search.html?search=" + search_string + "&type=" + type;
+	window.location.href = url_string;
+}
+
+</script>
+</head>
+
+<body>
+	<div id="headerBar">
+		<header class="bars">
+			<div class="container">
+
+				<a title="Videos On Demand" href="index.html">
+					<div id="fsLogo"></div>
+				</a>
+				<form id="formSearch" method="POST" action="search.html">
+					<div style="float:right;display:block;margin-top:5px;font-size:11px;color:#fff;">Logged in as: <a id="username" style="cursor:pointer;" href="profile.html"></a></div>
+					<div id="search">
+					<input id="input_search" class="input_search" type="text" placeholder="Search..." value="" name="q">
+					
+					<select id="type_search" class="choice" name="s">
+						<option value="t">Title</option>
+						<option value="a">Actor</option>
+						<option value="d">Director</option>
+					</select>
+					<button type="button" onClick="searchMovies();">Search</button>
+					</div>
+				</form>
+
+
+
+			</div>
+		</header>
+	</div>
+	<div id='topHeadermenu'>
+		<ul>
+			<li class='has-sub'><a href='home.html'><span>HOME</span></a></li>
+			<li><a href='profile.html'><span>PROFILE</span></a></li>
+			<li><a href='favorites.html'><span>FAVORITES</span></a></li>
+			<li><a href='history.html'><span>HISTORY</span></a></li>
+			<li><a href='recommendations.html'><span>RECOMMENDATIONS</span></a></li>
+			<li><a href='index.html'><span>LOG OUT</span></a></li>
+		</ul>
+
+	</div>
+
+	<div class="mainContainer" style="height: auto; padding-bottom: 20px;">
+
+		<div class="caption">
+			<div>
+				Search <span>Result</span>
+			</div>
+		</div>
+
+		<div class="content">
+			<div class="lightboxed" style="width: 100%; padding-bottom: 40px;">
+				<div class="caption" style="position: relative;">
+					<div style="font-size: 24px;">
+						Movie List <span>By Search Criteria</span>
+					</div>
+				</div>
+
+				<ul id="listMoviesSearch" style="display:block;margin-top:60px;">				
+				</ul>
+
+			</div>
+
+
+
+
+
+
+
+		</div>
+
+	</div>
+
+	<div class="footer">
+		<ul id="footerLinksList">
+			<li>© 2014 &nbsp;Videos On Demand. All Rights Reserved</li>
+			<li>|</li>
+			<li><a href="contactus.html">Contact Us</a></li>
+		</ul>
+
+	</div>
+
+
+</body>
+</html>

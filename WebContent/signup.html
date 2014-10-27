@@ -1,0 +1,355 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Video on Demand</title>
+<link href="css/VOD.css" rel="stylesheet" type="text/css">
+<link href="css/menu.css" rel="stylesheet" type="text/css">
+<link href="css/ccvalidate.css" rel="stylesheet" type="text/css">
+<link href="css/popModal.css" rel="stylesheet" type="text/css">
+<script src="js/jquery-1.4.4.min.js" type="text/javascript"></script>
+<script src="js/ccvalidate.js"></script>
+<script src="js/popModal.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript' src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/MovieManagementService.js"></script>
+<!-- Application Javascript -->
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+	    $('.cc-container').ccvalidate({ onvalidate: function(isValid) {
+		        	if (!isValid) {
+		        		$('#notify').html("Incorrect Credit Card information");
+		    			$('#notify').notifyModal({
+		        			duration : 5500,
+		        			placement : 'center',
+		        			overlay : true
+		        		});		            
+		            return false;
+	        }
+	        else{	        	
+		        	var isFormValid = true;
+		        	var message = "<br>";
+		        	
+		        	if(!$("#firstname").val())
+	        		{
+		        		isFormValid = false;
+		        		message+="Please enter first name<br><br>";
+	        		}
+		        	if(!$("#lastname").val())
+	        		{
+		        		isFormValid = false;
+		        		message+="Please enter last name<br><br>";
+	        		}
+		        	if(!$("#username").val())
+	        		{
+		        		isFormValid = false;
+		        		message+="Please enter username<br><br>";
+	        		}
+		        	if(!$("#password").val())
+	        		{
+		        		isFormValid = false;
+		        		message+="Please enter password<br><br>";
+	        		}
+		        	
+		        	var input=$("#email");
+			        var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+			        var is_email=re.test(input.val());
+			        if(!is_email){
+			        	isFormValid = false;
+		        		message+="Please enter correct email address<br><br>";
+			        }
+		        	
+		        	if(isFormValid)
+	        		{
+		        		var creditCardInfo = {
+		        				creditcardNumber: $('#card-number').val(),
+		        				creditcardType: $('#cctype').html().trim(),
+			    				name: $('#ccname').val(),
+			    				expiryMonth: $('#ccmonth').html().trim(),
+			    				expiryYear: $('#ccyear').html().trim(),
+			    				securityCode: $('#cccvv').val()
+		        		};
+		        		var userInfo = {
+			    		 		username: $("#username").val(),
+			    				password: $("#password").val(),
+			    				first_name: $("#firstname").val(),
+			    				last_name: $("#lastname").val(),
+			    				email: $("#email").val()			    				
+				    	};
+				    	UserManagementService.addUser(userInfo,creditCardInfo,addUserCallback);
+		        		
+	        		}
+		        	else{
+		        		$('#notify').html(message);
+			    		$('#notify').notifyModal({
+			        		duration : 5500,
+			        		placement : 'center',
+			        		overlay : true
+			        		});
+		        	}
+	        }
+	    }
+	    });
+	    
+	    $('.cc-ddl-contents').css('display', 'none');
+	    $('.cc-ddl-header').toggle(function() {
+	        toggleContents($(this).parent().find('.cc-ddl-contents'));
+	    }, function() { toggleContents($(this).parent().find('.cc-ddl-contents')); });
+	
+	    function toggleContents(el) {
+	        $('.cc-ddl-contents').css('display', 'none');
+	        if (el.css('display') == 'none') el.fadeIn("slow");
+	        else el.fadeOut("slow");
+	    }
+	    $('.cc-ddl-contents a').click(function() {
+	        $(this).parent().parent().find('.cc-ddl-o select').attr('selectedIndex', $('.cc-ddl-contents a').index(this));
+	        $(this).parent().parent().find('.cc-ddl-title').html($(this).html());
+	        $(this).parent().parent().find('.cc-ddl-contents').fadeOut("slow");
+	    });
+	    $(document).click(function() {
+	        $('.cc-ddl-contents').fadeOut("slow");
+	    });
+	
+	    $('#email').live('change', function() {
+	        var input=$(this);
+	        var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+	        var is_email=re.test(input.val());
+	        if(!is_email){
+	        	$('#notify').html("Please enter correct email address");
+	    		$('#notify').notifyModal({
+	        		duration : 5500,
+	        		placement : 'center',
+	        		overlay : true
+	        		});
+	        }
+	    });
+		   
+	    
+	    function addUserCallback(success)
+	    {
+	    	if(success == true)
+	   		{
+	    		window.location.href = "home.html";
+	   		}
+	    	else
+	   		{
+	    		$('#notify').html("Unable to add user, please contact admin");
+	    		$('#notify').notifyModal({
+	        		duration : 5500,
+	        		placement : 'center',
+	        		overlay : true
+	        		});
+	   		}
+	    		
+	    }
+	 	
+	    function errHandler(errorText, ex) {
+	    	if(errorText == null || errorText == '') {
+	    		errorText = ex.javaClassName;
+	    	}
+	    	alert(errorText);
+	    }
+	});
+        
+ 	
+    
+    
+    
+    
+</script>
+</head>
+
+<body>
+<div id="headerBar">
+<header class="bars">
+<div class="container">
+<a title="Videos On Demand" href="index.html">
+<div id="fsLogo"></div>
+</a>
+
+</div>
+</header>
+</div>
+
+<div class="mainContainer"  style="height:700px;">
+<div id="notify" style="display:none"> Notification </div>
+<div class="containerHeader">
+<div>
+Sign Up For
+<span>Membership</span>
+</div>
+</div>
+<br>
+
+<div class="signup">
+    <input type="text" id="firstname" name="firstname" placeholder="first name">
+    <br>
+    <input type="text" id="lastname" name="lastname" placeholder="last name">
+    <br>
+    <input type="text" id="email" name="email" placeholder="email">
+    <br>    
+    <input type="text" id="username" name="username" placeholder="username">
+    <br>
+    <input type="password" id="password" name="password" placeholder="password">
+    <br>
+    <br>
+    <div id="contents">
+            <div class="cc-container">
+                <div class="cc-header">
+                    Please enter your billing information</div>
+                <div class="cc-contents">
+                    <table cellpadding="4" cellspacing="0">
+                        <tr>
+                            <td style="width: 97px">
+                                <label>
+                                    Card Type</label>
+                            </td>
+                            <td style="width: 270px">
+                                <div class="cc-ddl">
+                                    <div class="cc-ddl-o">
+                                        <select id="cc-types" class="cc-ddl-type">
+                                        	<option value="tes">Test Card</option>
+                                            <option value="mcd">Master Card</option>
+                                            <option value="vis">Visa Card</option>
+                                            <option value="amx">American Express</option>
+                                            <option value="dnr">Diner Club</option>
+                                            <option value="dis">Discover</option>
+                                        </select>
+                                    </div>
+                                    <div class="cc-ddl-header">
+                                        <div id="cctype" class="cc-ddl-title">
+                                            Select Card Type</div>
+                                    </div>
+                                    <div class="cc-ddl-contents">
+                                        <a href="javascript:return void(0)">Test Card</a><a href="javascript:return void(0)">Master Card</a> <a href="javascript:return void(0)">
+                                            Visa Card</a> <a href="javascript:return void(0)">American Express</a> <a href="javascript:return void(0)">
+                                                Diners Club</a> <a href="javascript:return void(0)">Discover</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                         <tr>
+                            <td>
+                                <label>
+                                    Name on card</label>
+                            </td>
+                            <td>
+                                <input type="text" id="ccname" class="large" />
+                                <br>&nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>
+                                    Card Number</label>
+                            </td>
+                            <td>
+                                <input type="text" id="card-number" class="large cc-card-number" />
+                                <br>&nbsp;
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>
+                                <label>
+                                    Expires on</label>
+                            </td>
+                            <td>
+                                <div class="cc-ddl" style="width: 110px; float: left;">
+                                    <div class="cc-ddl-o">
+                                        <select id="cc-month">
+                                            <option value="January">January</option>
+                                            <option value="February">February</option>
+                                            <option value="March">March</option>
+                                            <option value="April">April</option>
+                                            <option value="May">May</option>
+                                            <option value="June">June</option>
+                                            <option value="July">July</option>
+                                            <option value="August">August</option>
+                                            <option value="September">September</option>
+                                            <option value="October">October</option>
+                                            <option value="November">November</option>
+                                            <option value="December">December</option>
+                                        </select>
+                                    </div>
+                                    <div class="cc-ddl-header">
+                                        <div id="ccmonth" class="cc-ddl-title">
+                                            Month</div>
+                                    </div>
+                                    <div class="cc-ddl-contents" style="width: 108px">
+                                        <a href="javascript:return void(0)">January</a> <a href="javascript:return void(0)">
+                                            February</a> <a href="javascript:return void(0)">March</a> <a href="javascript:return void(0)">
+                                                April</a> <a href="javascript:return void(0)">May</a> <a href="javascript:return void(0)">
+                                                    June</a> <a href="javascript:return void(0)">July</a> <a href="javascript:return void(0)">
+                                                        August</a> <a href="javascript:return void(0)">September</a> <a href="javascript:return void(0)">
+                                                            October</a> <a href="javascript:return void(0)">November</a>
+                                        <a href="javascript:return void(0)">December</a>
+                                    </div>
+                                </div>
+                                <div class="cc-ddl" style="width: 80px; float: left; margin-left: 4px;">
+                                    <div class="cc-ddl-o">
+                                        <select id="Select1">
+                                            <option value="2014">2014</option>
+                                            <option value="2015">2015</option>
+                                            <option value="2016">2016</option>
+                                            <option value="2017">2017</option>
+                                            <option value="2018">2018</option>
+                                        </select>
+                                    </div>
+                                    <div class="cc-ddl-header">
+                                        <div id="ccyear" class="cc-ddl-title">
+                                            Year</div>
+                                    </div>
+                                    <div class="cc-ddl-contents" style="width: 78px">
+                                        <a href="javascript:return void(0)">2014</a> <a href="javascript:return void(0)">2015</a>
+                                        <a href="javascript:return void(0)">2016</a> <a href="javascript:return void(0)">2017</a>
+                                        <a href="javascript:return void(0)">2018</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>
+                                    CVV</label>
+                            </td>
+                            <td>
+                                <input id="cccvv" type="text" class="small" />
+                            </td>
+                        </tr>   
+                        <tr>                            
+                            <td colspan="2">
+                            <br>
+                            <br>
+                                <input type="submit" value="Sign Up" class="cc-checkout" id="check-out" />
+                            </td>
+                        </tr>                     
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+</div>
+
+
+</div>
+
+<div class="footer">
+<ul id="footerLinksList">
+<li>
+© 2014 &nbsp;Videos On Demand. All Rights Reserved
+</li>
+<li>|</li>
+<li>
+<a href="contactus.html">Contact Us</a>
+</li>
+</ul>
+
+</div>
+
+
+</body>
+</html>

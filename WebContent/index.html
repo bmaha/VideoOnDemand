@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Video on Demand</title>
+<link href="css/VOD.css" rel="stylesheet" type="text/css">
+<link href="css/menu.css" rel="stylesheet" type="text/css">
+<link href="css/photoGallery.css" rel="stylesheet" type="text/css">
+<link href="css/popModal.css" rel="stylesheet" type="text/css">
+<script src="js/jquery.min.js"></script>
+<script src="js/photoGallery.js"></script>
+<script src="js/popModal.js"></script>
+
+<!-- DWR -->
+<script type='text/javascript' src="dwr/engine.js"></script>
+<script type='text/javascript' src="dwr/util.js"></script>
+<script type='text/javascript' src="dwr/interface/UserManagementService.js"></script>
+<script type='text/javascript' src="dwr/interface/MovieManagementService.js"></script>
+
+<!-- Application Javascript -->
+<script type="text/javascript">
+        
+ 	// OnLoad Actions
+    $(function() {    	
+    	UserManagementService.authenticate(authenticateCallback);
+    });
+ 	
+    function loginUser() {
+    	var username= $("#username").val();
+    	var	password= $("#password").val();
+    	UserManagementService.login(username,password,loginCallback);
+    	
+    }
+    
+    function authenticateCallback(success)
+    {
+    	if(success == true)
+   		{
+    		window.location.href = "home.html";
+   		}	
+    }
+    
+    function loginCallback(success)
+    {
+    	if(success == true)
+   		{
+    		window.location.href = "home.html";
+   		}
+    	else
+   		{
+    		$('#notify').html("The username or password you entered is incorrect.");
+    		$('#notify').notifyModal({
+        		duration : 5500,
+        		placement : 'center',
+        		overlay : true
+        		}); 
+   		}
+    		
+    }
+ 	
+    function errHandler(errorText, ex) {
+    	if(errorText == null || errorText == '') {
+    		errorText = ex.javaClassName;
+    	}
+    	$('#notify').html(errorText);	
+
+    	$('#notify').dialogModal({  
+	    	onOkBut : function(){ },   	
+	    	onCancelBut : function(){ }, 
+	    	onLoad : function(){ },  	
+	    	onClose : function(){ },  
+    	});	
+    }
+    
+    $(document).ready(function() {
+		$('#slider1').s3Slider({
+		timeOut: 4000
+		}); 
+	});
+    
+</script>
+</head>
+
+<body>
+<div id="headerBar">
+<header class="bars">
+<div class="container">
+
+<a title="Videos On Demand" href="index.html">
+<div id="fsLogo"></div>
+</a>
+
+
+
+<div class="login">
+
+<input type="text" id="username" name="user" placeholder="username">
+
+<input type="password" id="password" name="password" placeholder="password">
+
+<button onclick="loginUser()" type="button">Login</button>
+
+</div>
+
+</div>
+</header>
+</div>
+
+<div class="mainContainer">
+<div id="notify" style="display:none"> Notification </div>
+
+<div id="slider1">
+<ul id="slider1Content" style="margin:0px;padding:0px;">
+<li class="slider1Image" style="display: list-item;margin:0px;padding:0px;">
+<img width="1024" height="500" src="images/01.jpg">
+<span class="left offset" style="display: none;">
+<strong>"A one-stop source for all your home entertainment video and movie review information needs."</strong>
+<br>
+
+<form id="formstart" method="GET" action="signup.html">
+<div class="marginTop30">
+<button style="width:180px;" type="submit"> Start Your Membership </button>
+</div>
+</form>
+</span>
+</li>
+<li class="slider1Image" style="display: none;margin:0px;padding:0px;">
+<img width="1024" height="500" src="images/02.jpg">
+<span class="right offsetRight" style="display: none;">
+<strong>"Buy, rent DVD movies or vote your opinions! What more can you get?"</strong>
+</span>
+</li>
+<li class="slider1Image" style="display: none;margin:0px;padding:0px;">
+<img width="1024" height="500" src="images/03.jpg">
+<span class="left offset" style="display: none;">
+<strong> "Can't sleep? Not awake? Why not settle down with a bowl of popcorn and take a look at the latest movie news and reviews."</strong>
+<br>
+<form id="formstart" method="GET" action="signup.html">
+<div class="marginTop30">
+<button type="submit" style="width:180px;"> Start Your Membership </button>
+</div>
+</form>
+</span>
+</li>
+
+<div class="clear slider1Image"></div>
+</ul>
+</div>
+
+
+
+</div>
+
+<div class="footer">
+<ul id="footerLinksList">
+<li>
+© 2014 &nbsp;Videos On Demand. All Rights Reserved
+</li>
+<li>|</li>
+<li>
+<a href="contactus.html">Contact Us</a>
+</li>
+</ul>
+
+</div>
+
+
+</body>
+</html>

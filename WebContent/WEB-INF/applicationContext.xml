@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd 
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.directwebremoting.org/schema/spring-dwr 
+        http://www.directwebremoting.org/schema/spring-dwr-3.0.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="edu.utdallas.videoOnDemand" />
+
+	<dwr:configuration>
+		<dwr:convert class="edu.utdallas.videoOnDemand.movieManagementSvc.movieLookup.MovieInfoDTO" type='bean' />
+		<dwr:convert class="edu.utdallas.videoOnDemand.movieManagementSvc.MovieDTO" type='bean' />
+		<dwr:convert class="edu.utdallas.videoOnDemand.userManagementSvc.UserDTO" type='bean' />
+		<dwr:convert class="edu.utdallas.videoOnDemand.userManagementSvc.CreditCardDTO" type='bean' />
+		<dwr:convert class="edu.utdallas.videoOnDemand.MovieCommentSvc.MovieCommentDTO" type='bean' />
+	</dwr:configuration>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+ 
+		<property name="driverClassName" value="org.apache.derby.jdbc.ClientDriver" />
+		<property name="url" value="jdbc:derby://localhost:1527/voddb" />
+		<property name="username" value="vodapp" />
+		<property name="password" value="vodapp" />
+	</bean>
+ 
+	<bean name="movieDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.MovieDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean name="userDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.UserDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	 
+	<bean name="adminDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.AdminDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean> 
+	
+	<bean name="transactionDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.TransactionDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean name="commentDAO"
+		class="edu.utdallas.videoOnDemand.dao.impl.MovieCommentDAOImpl">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="transactionService"
+		class="edu.utdallas.videoOnDemand.transactionSvc.TransactionServiceImpl">
+		<dwr:remote javascript="TransactionService" />
+		<property name="transactionDAO" ref="transactionDAO"/>
+	</bean>
+	
+	<bean id="moviecommentService"
+		class="edu.utdallas.videoOnDemand.MovieCommentSvc.MovieCommentServiceImpl">
+		<dwr:remote javascript="MovieCommentService" />
+		<property name="commentDAO" ref="commentDAO"/>
+	</bean>
+	
+	<bean name="movieLookup"
+		class="edu.utdallas.videoOnDemand.movieManagementSvc.movieLookup.ImdbMovieLookup">
+	</bean>
+
+	<bean id="userManagementService"
+		class="edu.utdallas.videoOnDemand.userManagementSvc.UserManagementServiceImpl">
+		<dwr:remote javascript="UserManagementService" />
+		<property name="userDAO" ref="userDAO"/>
+	</bean>
+
+  <bean id="adminManagementService"
+		class="edu.utdallas.videoOnDemand.adminManagementSvc.AdminManagementServiceImpl">
+		<dwr:remote javascript="AdminManagementService" />
+		<property name="AdminDAOfetchingUserDAO" ref="adminDAO"/>
+		<property name="AdminDAOfetchingmovieDAO" ref="adminDAO"/>
+	</bean> 
+	
+	<bean name="movieManagementSvc"
+		class="edu.utdallas.videoOnDemand.movieManagementSvc.MovieManagementServiceImpl">
+		<dwr:remote javascript="MovieManagementService" />
+		<property name="movieLookup" ref="movieLookup"/>
+		<property name="movieDAO" ref="movieDAO"/>
+	</bean>
+
+</beans>
